@@ -78,7 +78,7 @@ agent:
   attestation_ref: "credential-id"       # Reference to ATTESTATION.md credential used
 
 session:
-  session_id: "uuid-v4"                  # Current session identifier
+  session_id: "uuid-v4"                  # Current session identifier (see SESSION.md)
   delegation_chain:                      # Full authority chain
     - principal: "human:jane@org.com"    # Original authority
       granted: "ISO-8601"
@@ -88,7 +88,7 @@ session:
       scope: "subtask-description"
 
 action:
-  intent_hash: "sha256:..."             # Hash of INTENT or instruction
+  intent_hash: "sha256:..."             # Hash of INTENT or instruction (see INTENT.md)
   action_type: "enum"                   # query | create | update | delete |
                                         # execute | communicate | decide | escalate
   target_resource: "resource-uri"       # What was acted upon
@@ -130,6 +130,9 @@ Verification: Walk the chain from genesis event. If any hash
 does not match its recomputed value, the chain is broken at
 that point and all subsequent events are suspect.
 
+_See ENFORCEMENT.md for scheduled audit verification and
+automated integrity checks._
+
 ### Signed Entries
 Each event is signed using the agent's ATTESTATION.md credentials.
 - **Signing key:** [reference to attestation key]
@@ -158,7 +161,7 @@ or timestamping service for independent verification.
 
 | Regulatory Framework | Minimum Retention | This Agent's Policy |
 |---------------------|-------------------|---------------------|
-| **GDPR** | 3 years (data processing records) | [duration] |
+| **GDPR** | 3 years (data processing records; see GDPR.md and CONSENT.md for right-to-erasure interaction) | [duration] |
 | **HIPAA** | 6 years (access logs, audit trails) | [duration] |
 | **SOC 2** | 1 year (system activity logs) | [duration] |
 | **EU AI Act** | 10 years (high-risk AI system logs) | [duration] |
@@ -194,8 +197,9 @@ Every audit entry is non-repudiable — the agent that produced it
 cannot deny having produced it. This is achieved through:
 
 1. **Cryptographic signing:** Each entry signed with the agent's
-   ATTESTATION.md credentials (private key never leaves hardware
-   binding if applicable)
+   ATTESTATION.md credentials (see ATTESTATION.md for key management
+   and signing algorithms; private key never leaves hardware binding
+   if applicable)
 2. **Delegation chain inclusion:** Every entry includes the full
    chain of authority from human principal to executing agent
 3. **Timestamping:** Independent timestamp from trusted authority
@@ -214,7 +218,8 @@ Verification steps for any audit entry:
 ## Human Authority Binding
 
 Every consequential action links back to a human decision-maker
-through the delegation chain in DELEGATION.md.
+through the delegation chain (see DELEGATION.md for chain structure
+and depth limits).
 
 - **Delegation chain logged:** Every entry includes the full chain
 - **Chain breaks:** If delegation chain cannot be verified, action
@@ -302,6 +307,14 @@ The Chain of Thought Ledger is:
 - **Subject to the same** tamper-resistance and retention policies
 - **Queryable** for pattern analysis across decisions
 ```
+
+## Example Use Cases
+
+**Enterprise:** A multinational bank's trading agents produce hash-chained audit entries for every order execution, enabling the compliance team to reconstruct the full decision chain during regulatory examinations without relying on agent self-reporting.
+
+**Multi-Agent Fleet:** A DevOps platform with 50 deployment agents uses AUDITTRAIL.md to correlate events across agents during post-incident forensics, tracing a cascading failure from the initial misconfigured deploy through every downstream agent that propagated the error.
+
+**Regulated Industry:** A healthcare system's patient-data agents maintain signed, timestamped audit entries with delegation chains linking every data access back to the authorizing physician, satisfying HIPAA audit trail requirements and enabling 6-year retention compliance.
 
 ### Cross-References
 - **DELEGATION.md** — Authority chains logged in every audit entry
